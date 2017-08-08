@@ -1,7 +1,4 @@
 .idea/
 .idea/*/
 .DS_Store
-.vender/
-composer.json
-composer.lock
-composer.phar
+

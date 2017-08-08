@@ -15,8 +15,10 @@ class FeedBackTest extends \PHPUnit_Framework_TestCase
 
     private $testTitle;
     private $testContent;
+    private $testErrorTitle;
+    private $testErrorContent;
 
-    protected $loginUrl = 'http://localhost/MavAppoint/?c=bG9naW4=';
+    protected $loginUrl = 'https://cse-devel.uta.edu/MavAppoint2/?c=bG9naW4=';
 
     public function setUp()
     {
@@ -24,6 +26,24 @@ class FeedBackTest extends \PHPUnit_Framework_TestCase
 
         $this->testTitle = "Feedback Title ".time();
         $this->testContent = "Feedback Content ".time();
+        $this->testErrorTitle =  'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+        $this->testErrorContent =  'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+            .'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
     }
 
     public function testSubmitFeedback()
@@ -41,11 +61,10 @@ class FeedBackTest extends \PHPUnit_Framework_TestCase
         $signField = $this->webDriver->findElement(WebDriverBy::id('signIn'));
         $signField->click();
 
-        $this->assertEquals("http://localhost/MavAppoint/?c=aW5kZXg=", $this->webDriver->getCurrentURL());
+        $this->assertEquals("https://cse-devel.uta.edu/MavAppoint2/?c=aW5kZXg=", $this->webDriver->getCurrentURL());
 
         $feedbackBtn = $this->webDriver->findElement(WebDriverBy::id('btn_feedback'));
         $feedbackBtn->click();
-
 
         $feedbackTypeSelector = new WebDriverSelect(
             $this->webDriver->findElement(WebDriverBy::id('drp_feedback_type')));
@@ -55,6 +74,14 @@ class FeedBackTest extends \PHPUnit_Framework_TestCase
             $this->webDriver->findElement(WebDriverBy::id('drp_feedback_advisor')));
         $feedbackAdvisorSelector->selectByIndex(3);
 
+        //Case1
+        $submitBtn = $this->webDriver->findElement(WebDriverBy::id('button_feedback_submit'));
+        $submitBtn->click();
+
+        $resultField = $this->webDriver->findElement(WebDriverBy::id('feedback_loading_text'));
+        $this->assertEquals("Title or content cannot be null", $resultField->getText());
+
+        //Case2
         $titleField = $this->webDriver->findElement(WebDriverBy::id('feedback_title'));
         $titleField->click();
         $this->webDriver->getKeyboard()->sendKeys($this->testTitle);
@@ -63,17 +90,14 @@ class FeedBackTest extends \PHPUnit_Framework_TestCase
         $commentField->click();
         $this->webDriver->getKeyboard()->sendKeys($this->testContent);
 
-        $submitBtn = $this->webDriver->findElement(WebDriverBy::id('button_feedback_submit'));
         $submitBtn->click();
 
         sleep(2);
-
-        $resultField = $this->webDriver->findElement(WebDriverBy::id('feedback_loading_text'));
         $this->assertEquals("Success", $resultField->getText());
 
-        $this->webDriver->findElement(WebDriverBy::id('button_feedback_cancel'))->click();
-        $this->webDriver->findElement(WebDriverBy::id('a_setting'))->click();
-        $this->webDriver->findElement(WebDriverBy::id('a_logout'))->click();
+        //$this->webDriver->findElement(WebDriverBy::id('button_feedback_cancel'))->click();
+        //$this->webDriver->findElement(WebDriverBy::id('a_setting'))->click();
+        //$this->webDriver->findElement(WebDriverBy::id('a_logout'))->click();
     }
 
     public function testResponseFeedback()
@@ -91,14 +115,21 @@ class FeedBackTest extends \PHPUnit_Framework_TestCase
         $signField = $this->webDriver->findElement(WebDriverBy::id('signIn'));
         $signField->click();
 
-        $this->assertEquals("http://localhost/MavAppoint/?c=aW5kZXg=", $this->webDriver->getCurrentURL());
+        $this->assertEquals("https://cse-devel.uta.edu/MavAppoint2/?c=aW5kZXg=", $this->webDriver->getCurrentURL());
 
-        $feedbackBtn = $this->webDriver->findElement(WebDriverBy::id('a_feedback'));
+        $feedbackBtn = $this->webDriver->findElement(WebDriverBy::linkText("Feedback"));
         $feedbackBtn->click();
 
         $feedbackReplyBtn = $this->webDriver->findElement(WebDriverBy::id('feedback_reply_button0'));
         $feedbackReplyBtn->click();
 
+        //Case1
+        /*$submitBtn = $this->webDriver->findElement(WebDriverBy::id('button_feedback_reply_submit'));
+        $submitBtn->click();
+        $resultField = $this->webDriver->findElement(WebDriverBy::id('feedback_reply_loading_text'));
+        $this->assertEquals("Title or content cannot be null", $resultField->getText());*/
+
+        //Case2
         $replyField = $this->webDriver->findElement(WebDriverBy::id('feedback_reply_comment'));
         $replyField->click();
         $this->webDriver->getKeyboard()->sendKeys('Reply contnet');
@@ -111,7 +142,7 @@ class FeedBackTest extends \PHPUnit_Framework_TestCase
         $resultField = $this->webDriver->findElement(WebDriverBy::id('feedback_reply_loading_text'));
         $this->assertEquals("Success", $resultField->getText());
 
-        $this->webDriver->findElement(WebDriverBy::id('button_feedback_reply_cancel'))->click();
+        //$this->webDriver->findElement(WebDriverBy::id('button_feedback_reply_cancel'))->click();
     }
 
     public function tearDown()
